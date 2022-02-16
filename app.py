@@ -158,7 +158,7 @@ def launch():
     total_today = len(total_today)
     total = total_active + total_inactive
 
-    config.fig = make_subplots(
+    fig = make_subplots(
         rows = 4, cols = 3,
         specs=[
                 [{"type": "indicator"}, {"type": "indicator"}, {"type": "indicator"} ],
@@ -168,7 +168,7 @@ def launch():
               ]
     )
 
-    config.fig.add_trace(
+    fig.add_trace(
         go.Indicator(
             mode="number",
             value=total_active,
@@ -177,7 +177,7 @@ def launch():
         row=1, col=2
     )
 
-    config.fig.add_trace(
+    fig.add_trace(
         go.Indicator(
             mode="number",
             value=total_today,
@@ -186,7 +186,7 @@ def launch():
         row=1, col=1
     )
 
-    config.fig.add_trace(
+    fig.add_trace(
         go.Indicator(
             mode="number",
             value=total,
@@ -195,7 +195,7 @@ def launch():
         row=1, col=3
     )
 
-    config.fig.write_html('templates/figure.html', auto_open=False)
+    fig.write_html('templates/figure.html', auto_open=False)
     return render_template('figure.html')
     
 
