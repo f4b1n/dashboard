@@ -1,0 +1,6 @@
+Flask
+dash
+plotly
+pandas
+requests
+datetime
