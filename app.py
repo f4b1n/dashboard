@@ -13,8 +13,6 @@ import pandas as pd
 import requests
 from datetime import datetime, date
 import json
-import config
-
 
 app = Flask(__name__)
 app.config['API'] = os.environ.get('API')
