@@ -41,6 +41,9 @@ def index():
 @app.route("/<roleid>", methods =['POST', 'GET'])
 def login(roleid):
     password = str(escape(request.args.get("password", "")))
+    for document in os.listdir('./templates/'):
+        if document.endswith('figure.html'):
+            os.remove('./templates/' + document)
     return (
         """<form action="/dashboard" method="post">
                 <input type="password" name="password">
