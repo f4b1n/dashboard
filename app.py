@@ -159,7 +159,7 @@ def launch():
         t = int(t)
         return datetime.fromtimestamp(t)
 
-    df_final["createdAt"]= df_final["createdAt"]/1000
+        df_final["createdAt"]= df_final["createdAt"]/1000
     df_final["createdAt"] = df_final["createdAt"].apply(convertTime)
 
     df_final.set_index("createdAt", inplace = True)
@@ -167,45 +167,36 @@ def launch():
     total_today = len(total_today)
     total = total_active + total_inactive
 
-    fig = make_subplots(
-        rows = 4, cols = 3,
-        specs=[
-                [{"type": "indicator"}, {"type": "indicator"}, {"type": "indicator"} ],
-                [{"type": "bar", "colspan":3}, None, None],
-                [{"type": "bar", "colspan":3}, None, None],
-                [{"type": "bar", "colspan":3}, None, None],
-              ]
-    )
 
-    fig.add_trace(
-        go.Indicator(
-            mode="number",
-            value=total_active,
-            title="Active Candidates",
-        ),
-        row=1, col=2
-    )
+    fig = go.Figure()
 
-    fig.add_trace(
-        go.Indicator(
-            mode="number",
-            value=total_today,
-            title="Applications today",
-        ),
-        row=1, col=1
-    )
+    fig.add_trace(go.Indicator(
+        mode = "number",
+        value = total_today,
+        title = {"text": "Total applications today"},
+        domain = {'row': 0, 'column': 0}))
 
-    fig.add_trace(
-        go.Indicator(
-            mode="number",
-            value=total,
-            title="Total applications (active+archived)",
-        ),
-        row=1, col=3
-    )
+    fig.add_trace(go.Indicator(
+        mode = "number",
+        value = total_active,
+        title = {"text": "Total in pipeline"},
+        domain = {'row': 0, 'column': 1}))
 
-    fig.write_html('templates/figure.html', auto_open=False)
-    return render_template('figure.html')
+    fig.add_trace(go.Indicator(
+        mode = "number",
+        value = total,
+        title = {"text": "Grand Total (archived+active)"},
+        domain = {'row': 0, 'column': 2}))
+
+    fig.update_layout(
+        grid = {'rows': 1, 'columns': 3, 'pattern': "independent"},
+        template = {'data' : {'indicator': [{
+            'mode' : "number"}]
+                             }})
+
+    
+    fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('page.html', fig=fig)
     
 
 if __name__ == "__main__":
