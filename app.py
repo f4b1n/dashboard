@@ -25,15 +25,9 @@ port = int(os.environ.get("PORT", 5000))
 def set_roldid_session():
     if 'roleid' in request.args:
         session['roleid'] = request.args['roleid']
-    for document in os.listdir('./templates/'):
-        if document.endswith('figure.html'):
-            os.remove('./templates/' + document)
 
 @app.route("/")
 def index():
-    for document in os.listdir('./templates/'):
-        if document.endswith('figure.html'):
-            os.remove('./templates/' + document)
     return (
         """<form action="/dashboard" method="post">
                 <input type="password" name="password">
@@ -60,9 +54,6 @@ def launch():
     roleid = session['roleid']
     if not check_password_hash(app.config['PASSWORD'], password):
         return redirect("/?roleid=" + roleid)
-    for document in os.listdir('./templates/'):
-        if document.endswith('figure.html'):
-            os.remove('./templates/' + document)
     
     raw = requests.get(f'https://api.lever.co/v1/opportunities?posting_id={roleid}&limit=100', auth=(app.config['API'], ''))
     raw_json = raw.json()
