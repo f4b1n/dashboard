@@ -135,8 +135,10 @@ def launch():
 
     data_list = df["data"].tolist()
     df_final = pd.DataFrame(data_list)
-    df_final.drop(["name", "contact", "headline", "confidentiality", "location", "phones", "emails", "links", "archived", "tags", "stageChanges", "origin", "owner", "followers", "applications", "urls", "isAnonymized", "dataProtection", "contact"], axis = 1, inplace = True) 
-
+    try:
+        df_final.drop(["name", "contact", "headline", "confidentiality", "location", "phones", "emails", "links", "archived", "tags", "stageChanges", "origin", "owner", "followers", "applications", "urls", "isAnonymized", "dataProtection", "contact"], axis = 1, inplace = True) 
+    except:
+        pass
 
     data2_list = df2["data"].tolist()
     df2_final = pd.DataFrame(data2_list)
@@ -149,13 +151,16 @@ def launch():
         from datetime import datetime, date
         t = int(t)
         return datetime.fromtimestamp(t)
-
-    df_final["createdAt"]= df_final["createdAt"]/1000
-    df_final["createdAt"] = df_final["createdAt"].apply(convertTime)
-
-    df_final.set_index("createdAt", inplace = True)
-    total_today = df_final.loc[pd.to_datetime('today').strftime('%Y-%m-%d')]
-    total_today = len(total_today)
+    try:
+        df_final["createdAt"]= df_final["createdAt"]/1000
+        df_final["createdAt"] = df_final["createdAt"].apply(convertTime)
+        df_final.set_index("createdAt", inplace = True)
+        total_today = df_final.loc[pd.to_datetime('today').strftime('%Y-%m-%d')]
+        total_today = len(total_today)
+    except:
+        total_today = 0
+        pass
+    
     total = total_active + total_inactive
 
 
