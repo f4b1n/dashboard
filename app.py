@@ -164,32 +164,53 @@ def launch():
     total = total_active + total_inactive
 
 
+    df_final.reset_index(inplace = True)
+
+    try:
+        df2_final["createdAt"]= df2_final["createdAt"]/1000
+        df2_final["createdAt"] = df2_final["createdAt"].apply(convertTime)
+    except:
+        pass
+
+    df_final = pd.concat([df_final, df2_final])
+
+    df_final['createdAt'] = df_final['createdAt'].dt.normalize()
+    
     fig = go.Figure()
+    
+    fig = make_subplots(rows=2, cols=2, subplot_titles=(" ","Applications over Time"))
 
     fig.add_trace(go.Indicator(
         mode = "number",
         value = total_today,
         title = {"text": "Total applications today"},
-        domain = {'row': 0, 'column': 0}))
+        domain = {'row': 1, 'column': 1}))
 
     fig.add_trace(go.Indicator(
         mode = "number",
         value = total_active,
         title = {"text": "Total in pipeline"},
-        domain = {'row': 0, 'column': 1}))
+        domain = {'row': 1, 'column': 2}))
 
     fig.add_trace(go.Indicator(
         mode = "number",
         value = total,
         title = {"text": "Grand Total (archived+active)"},
-        domain = {'row': 0, 'column': 2}))
+        domain = {'row': 1, 'column': 0}))
 
+    fig.update_traces(title_font_size=15, selector=dict(type='indicator'))
+    fig.update_traces(number_font_size=30, selector=dict(type='indicator'))
+
+    fig.add_trace(go.Histogram(
+        x = df_final.createdAt,
+        hoverinfo = None),
+        row = 1, col = 2)
+    
     fig.update_layout(
-        grid = {'rows': 1, 'columns': 3, 'pattern': "independent"},
+        grid = {'rows': 2, 'columns': 3, 'pattern': "independent"},
         template = {'data' : {'indicator': [{
             'mode' : "number"}]
                              }})
-
     
     fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('page.html', fig=fig)
