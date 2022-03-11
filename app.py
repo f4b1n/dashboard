@@ -182,18 +182,18 @@ def launch():
     
     fig = go.Figure()
     
-    fig = make_subplots(rows=2, cols=2, subplot_titles=("Applications by source","Applications over Time"))
+    fig = make_subplots(rows=2, cols=2, subplot_titles=("Applications by Source","Applications over Time"))
 
     fig.add_trace(go.Indicator(
         mode = "number",
         value = total_today,
-        title = {"text": "Total applications today"},
+        title = {"text": "Total Applications Today"},
         domain = {'row': 1, 'column': 0}))
 
     fig.add_trace(go.Indicator(
         mode = "number",
         value = total_active,
-        title = {"text": "Total in pipeline"},
+        title = {"text": "Total in Pipeline"},
         domain = {'row': 1, 'column': 1}))
 
     fig.add_trace(go.Indicator(
@@ -228,7 +228,7 @@ def launch():
     try:
         fig.update_layout(
             grid = {'rows': 2, 'columns': 3, 'pattern': "independent"},
-            title_text = (str((df_final['tags'].mode().tolist()))).translate(str.maketrans({"[": "", "]": "", "'": ""})),
+            title_text = str((df_final.tags.iloc[-1])[0]),
             title_x = 0.5,
             template = {'data' : {'indicator': [{
                 'mode' : "number"}]
