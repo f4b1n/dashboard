@@ -13,6 +13,7 @@ import pandas as pd
 import requests
 from datetime import datetime, date
 import json
+import plotly.express as px
 
 app = Flask(__name__)
 app.config['API'] = os.environ.get('API')
@@ -136,7 +137,7 @@ def launch():
     data_list = df["data"].tolist()
     df_final = pd.DataFrame(data_list)
     try:
-        df_final.drop(["name", "contact", "headline", "confidentiality", "location", "phones", "emails", "links", "archived", "tags", "stageChanges", "origin", "owner", "followers", "applications", "urls", "isAnonymized", "dataProtection", "contact"], axis = 1, inplace = True) 
+        df_final.drop(["name", "contact", "headline", "confidentiality", "location", "phones", "emails", "links", "archived", "stageChanges", "origin", "owner", "followers", "applications", "urls", "isAnonymized", "dataProtection", "contact"], axis = 1, inplace = True) 
     except:
         pass
 
@@ -173,12 +174,15 @@ def launch():
         pass
 
     df_final = pd.concat([df_final, df2_final])
-
-    df_final['createdAt'] = df_final['createdAt'].dt.normalize()
+    
+    try:
+        df_final.drop(["name", "contact", "headline", "confidentiality", "location", "phones", "emails", "links", "archived", "stageChanges", "origin", "owner", "followers", "applications", "urls", "isAnonymized", "dataProtection", "contact"], axis = 1, inplace = True) 
+    except:
+        pass
     
     fig = go.Figure()
     
-    fig = make_subplots(rows=2, cols=2, subplot_titles=(" ","Applications over Time"))
+    fig = make_subplots(rows=2, cols=2, subplot_titles=("Applications by source","Applications over Time"))
 
     fig.add_trace(go.Indicator(
         mode = "number",
@@ -198,20 +202,45 @@ def launch():
         title = {"text": "Grand Total (archived+active)"},
         domain = {'row': 1, 'column': 0}))
 
-    fig.update_traces(title_font_size=15, selector=dict(type='indicator'))
-    fig.update_traces(number_font_size=30, selector=dict(type='indicator'))
+    fig.update_traces(title_font_size = 15, number_font_size = 30, selector = dict(type = 'indicator'))
+    
+    try:
+        fig.add_trace(go.Histogram(
+            x = df_final.createdAt,
+            name = "Applicants"),
+            row = 1, col = 2)
 
-    fig.add_trace(go.Histogram(
-        x = df_final.createdAt,
-        hoverinfo = None),
-        row = 1, col = 2)
+        df_final['sources'] = (df_final['sources'].astype('string')).astype('category')
+    except:
+        pass
+
+    try:
+        fig.add_trace(go.Bar(
+            y = (df_final.groupby(['sources']).count()).id.tolist(),
+            x = (df_final.groupby(['sources']).count()).index,
+            name = "sources",
+            showlegend = False,
+            marker_color = px.colors.qualitative.Plotly),
+            row = 1, col = 1)
+    except:
+        pass
     
-    fig.update_layout(
-        grid = {'rows': 2, 'columns': 3, 'pattern': "independent"},
-        template = {'data' : {'indicator': [{
-            'mode' : "number"}]
-                             }})
-    
+    try:
+        fig.update_layout(
+            grid = {'rows': 2, 'columns': 3, 'pattern': "independent"},
+            title_text = (str((df_final['tags'].mode().tolist()))).translate(str.maketrans({"[": "", "]": "", "'": ""})),
+            title_x = 0.5,
+            template = {'data' : {'indicator': [{
+                'mode' : "number"}]
+                                 }})
+    except:
+            fig.update_layout(
+                grid = {'rows': 2, 'columns': 3, 'pattern': "independent"},
+                title_x = 0.5,
+                template = {'data' : {'indicator': [{
+                    'mode' : "number"}]
+                                     }})
+            
     fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('page.html', fig=fig)
     
