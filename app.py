@@ -209,15 +209,13 @@ def launch():
             x = df_final.createdAt,
             name = "Applicants"),
             row = 1, col = 2)
-
-        df_final['sources'] = (df_final['sources'].astype('string')).astype('category')
     except:
         pass
 
     try:
         fig.add_trace(go.Bar(
-            y = (df_final.groupby(['sources']).count()).id.tolist(),
-            x = (df_final.groupby(['sources']).count()).index,
+            y = df_final.sources.value_counts().tolist(),
+            x = list(map(', '.join, (df_final.sources.value_counts().index).tolist())),
             name = "sources",
             showlegend = False,
             marker_color = px.colors.qualitative.Plotly),
