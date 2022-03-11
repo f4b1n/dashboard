@@ -188,19 +188,19 @@ def launch():
         mode = "number",
         value = total_today,
         title = {"text": "Total applications today"},
-        domain = {'row': 1, 'column': 1}))
+        domain = {'row': 1, 'column': 0}))
 
     fig.add_trace(go.Indicator(
         mode = "number",
         value = total_active,
         title = {"text": "Total in pipeline"},
-        domain = {'row': 1, 'column': 2}))
+        domain = {'row': 1, 'column': 1}))
 
     fig.add_trace(go.Indicator(
         mode = "number",
         value = total,
         title = {"text": "Grand Total (archived+active)"},
-        domain = {'row': 1, 'column': 0}))
+        domain = {'row': 1, 'column': 2}))
 
     fig.update_traces(title_font_size = 15, number_font_size = 30, selector = dict(type = 'indicator'))
     
