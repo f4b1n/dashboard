@@ -56,83 +56,49 @@ def launch():
     if not check_password_hash(app.config['PASSWORD'], password):
         return redirect("/?roleid=" + roleid)
     
-    raw = requests.get(f'https://api.lever.co/v1/opportunities?posting_id={roleid}&limit=100', auth=(app.config['API'], ''))
-    raw_json = raw.json()
-    df = pd.DataFrame(raw_json)
+    def apiq(roleid, archived = False):
+        if archived is False:
+            posting_id = 'posting_id'
+        else:
+            posting_id = 'archived_posting_id'
+            
+        raw = requests.get(f'https://api.lever.co/v1/opportunities?{posting_id}={roleid}&limit=100', auth=(app.config['API'], ''))
+        raw_json = raw.json()
+        df = pd.DataFrame(raw_json)
 
-    try:
-        y = raw_json['next']
-    except:
-        pass
-
-    raw2 = requests.get(f'https://api.lever.co/v1/opportunities?archived_posting_id={roleid}&limit=100', auth=(app.config['API'], ''))
-    raw2_json = raw2.json()
-    df2 = pd.DataFrame(raw2_json)
-    
-    try:
-        z = raw2_json['next']
-    except:
-        pass
-    
-
-    def offset(y):
-        raw2 = requests.get(f'https://api.lever.co/v1/opportunities?posting_id={roleid}&limit=100&offset={y}', auth=(app.config['API'], ''))
-        raw2_json = raw2.json()
-        df2 = pd.DataFrame(raw2_json)
         try:
-            n = raw2_json['next']
-            while n in df2.values:
-                raw = requests.get(f'https://api.lever.co/v1/opportunities?posting_id={roleid}&limit=100&offset={n}', auth=(app.config['API'], ''))
-                raw2_json = raw.json()
-                try:
-                    n = raw2_json['next']
-                except:
-                    df3 = pd.DataFrame(raw2_json)
-                    df2 = pd.concat([df2, df3])
-                    break
-                df3 = pd.DataFrame(raw2_json)
-                df2 = pd.concat([df2, df3])
+            y = raw_json['next']
         except:
             pass
-        return df2
-
-
-    def offset2(z):
-        raw2 = requests.get(f'https://api.lever.co/v1/opportunities?archived_posting_id={roleid}&limit=100&offset={z}', auth=(app.config['API'], ''))
-        raw2_json = raw2.json()
-        df2 = pd.DataFrame(raw2_json)
+        
+        df2 = pd.DataFrame()
         try:
-            n = raw2_json['next']
-            while n in df2.values:
-                raw = requests.get(f'https://api.lever.co/v1/opportunities?archived_posting_id={roleid}&limit=100&offset={n}', auth=(app.config['API'], ''))
-                raw2_json = raw.json()
+            if y in df.values:
+                raw2 = requests.get(f'https://api.lever.co/v1/opportunities?{posting_id}={roleid}&limit=100&offset={y}', auth=(app.config['API'], ''))
+                raw2_json = raw2.json()
+                df2 = pd.DataFrame(raw2_json)
                 try:
                     n = raw2_json['next']
+                    while n in df2.values:
+                        raw = requests.get(f'https://api.lever.co/v1/opportunities?{posting_id}={roleid}&limit=100&offset={n}', auth=(app.config['API'], ''))
+                        raw2_json = raw.json()
+                        try:
+                            n = raw2_json['next']
+                        except:
+                            df3 = pd.DataFrame(raw2_json)
+                            df2 = pd.concat([df2, df3])
+                            break
+                        df3 = pd.DataFrame(raw2_json)
+                        df2 = pd.concat([df2, df3])
                 except:
-                    df3 = pd.DataFrame(raw2_json)
-                    df2 = pd.concat([df2, df3])
-                    break
-                df3 = pd.DataFrame(raw2_json)
-                df2 = pd.concat([df2, df3])
+                    pass
         except:
             pass
-        return df2
+        df = pd.concat([df, df2])
+        return df
 
-
-    try:
-        if y in df.values:
-            df1 = offset(y)
-            df = pd.concat([df, df1])
-    except:
-         pass
-
-
-    try: 
-        if z in df2.values:
-            df3 = offset2(z)
-            df2 = pd.concat([df2, df3])
-    except:
-        pass
+    df = apiq(roleid, archived = False)
+    df2 = apiq(roleid, archived = True)
 
     data_list = df["data"].tolist()
     df_final = pd.DataFrame(data_list)
