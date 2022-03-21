@@ -98,13 +98,13 @@ def launch():
 
 
     def offset2(z):
-        raw2 = requests.get(f'https://api.lever.co/v1/opportunities?archived_posting_id={roleid}&limit=100&offset={z}', auth=('DIqk/NOpKT5SKJQK/48UFXZ5FE6PYDzyK43fFPA9/9NBPeGc', ''))
+        raw2 = requests.get(f'https://api.lever.co/v1/opportunities?archived_posting_id={roleid}&limit=100&offset={z}', auth=(app.config['API'], ''))
         raw2_json = raw2.json()
         df2 = pd.DataFrame(raw2_json)
         try:
             n = raw2_json['next']
             while n in df2.values:
-                raw = requests.get(f'https://api.lever.co/v1/opportunities?archived_posting_id={roleid}&limit=100&offset={n}', auth=('DIqk/NOpKT5SKJQK/48UFXZ5FE6PYDzyK43fFPA9/9NBPeGc', ''))
+                raw = requests.get(f'https://api.lever.co/v1/opportunities?archived_posting_id={roleid}&limit=100&offset={n}', auth=(app.config['API'], ''))
                 raw2_json = raw.json()
                 try:
                     n = raw2_json['next']
@@ -179,6 +179,10 @@ def launch():
         df_final.drop(["name", "contact", "headline", "confidentiality", "location", "phones", "emails", "links", "archived", "stageChanges", "origin", "owner", "followers", "applications", "urls", "isAnonymized", "dataProtection", "contact"], axis = 1, inplace = True) 
     except:
         pass
+
+    titledat = requests.get(f'https://api.lever.co/v1/postings/{roleid}/apply', auth=(app.config['API'], ''))
+    titledat = titledat.json()
+
     
     fig = go.Figure()
     
@@ -207,7 +211,8 @@ def launch():
     try:
         fig.add_trace(go.Histogram(
             x = df_final.createdAt,
-            name = "Applicants"),
+            name = "Applicants",
+            marker_color='#109618'),
             row = 1, col = 2)
     except:
         pass
@@ -226,7 +231,7 @@ def launch():
     try:
         fig.update_layout(
             grid = {'rows': 2, 'columns': 3, 'pattern': "independent"},
-            title_text = str((df_final.tags.iloc[-1])[0]),
+            title_text = str(titledat['data']['text']),
             title_x = 0.5,
             template = {'data' : {'indicator': [{
                 'mode' : "number"}]
