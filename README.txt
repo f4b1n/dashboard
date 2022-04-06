@@ -1,1 +1,1 @@
-"this is an app"
+Updated some things proper readme will follow.
