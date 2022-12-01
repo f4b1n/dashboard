@@ -8,6 +8,6 @@ A unique job id is passed to the URL, the user logs in and then the live dashboa
 
 On the backend the Data API is called, data retrieved, transformed and displayed on the frontend with Plotly.
 
-It was hosted and deployed using google cloud run.
+It was hosted on heroku via docker.
 
 This was my first project after learning Python.
